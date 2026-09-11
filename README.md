@@ -27,7 +27,7 @@ flowchart LR
     P -->|/metrics| M[Prometheus]
     M -->|PromQL| A["dashboard: /api/metrics route"]
     A -->|typed JSON, polled every 15s| D[Dashboard UI]
-    D -->|Chromium kiosk mode| S[7\" screen on the rack]
+    D -->|Chromium kiosk mode| S[7-inch screen on the rack]
 ```
 
 - **unpoller** polls the UniFi controller and exposes the results as
