@@ -4,6 +4,8 @@ A cyberpunk-styled network operations dashboard for a rack-mounted Raspberry
 Pi 4 driving a 7" screen — real UniFi telemetry (clients, APs, switches, WAN
 throughput, per-device health) rendered as a neon HUD, no fabricated data.
 
+![mojorack dashboard showing live site overview, WAN uplink, devices, and WAN throughput history panels](docs/dashboard.png)
+
 ## Features
 
 - **Real telemetry, not a mockup.** Every number on screen comes from your
