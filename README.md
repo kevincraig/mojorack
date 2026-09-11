@@ -51,6 +51,12 @@ the dashboard — it only ever talks to `PROMETHEUS_URL`.
 - A local admin account on the controller (see below) — not your ui.com
   cloud login.
 
+## Hardware
+
+- [Raspberry Pi 7" Touch Display 3U Rack Panel](https://makerworld.com/en/models/2556657-raspberry-pi-7-touch-display-3u-rack-panel?from=search#profileId-2816368) —
+  3D-printable 3U rack panel that mounts the official Raspberry Pi 7" touch
+  display (and a Pi 4 behind it) directly into a 10" rack.
+
 ## Quick start
 
 ### 1. Create a local admin account on your UniFi controller
