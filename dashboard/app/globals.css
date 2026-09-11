@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+:root {
+  --bg-void: #05070a;
+  --bg-panel: #0b1016;
+  --bg-panel-raised: #101820;
+  --line: #1c2b33;
+  --cyan: #00fff2;
+  --cyan-dim: #0a9c94;
+  --magenta: #ff2ec4;
+  --yellow: #f5e400;
+  --red-alert: #ff3b3b;
+  --text-primary: #d7fbf7;
+  --text-dim: #6b8e89;
+}
+
+@theme inline {
+  --color-void: var(--bg-void);
+  --color-panel: var(--bg-panel);
+  --font-display: var(--font-display);
+  --font-hud: var(--font-hud-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--bg-void);
+  color: var(--text-primary);
+  font-family: var(--font-hud-mono), "Courier New", monospace;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Ambient scanline + vignette overlay, sits above all content */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+      to bottom,
+      rgba(0, 255, 242, 0.035) 0px,
+      rgba(0, 255, 242, 0.035) 1px,
+      transparent 1px,
+      transparent 3px
+    ),
+    radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+@keyframes flicker {
+  0%,
+  96%,
+  100% {
+    opacity: 1;
+  }
+  97% {
+    opacity: 0.85;
+  }
+  98% {
+    opacity: 1;
+  }
+  99% {
+    opacity: 0.9;
+  }
+}
+
+.hud-flicker {
+  animation: flicker 6s infinite;
+}
+
+.text-glow-cyan {
+  color: var(--cyan);
+  text-shadow: 0 0 6px rgba(0, 255, 242, 0.65), 0 0 18px rgba(0, 255, 242, 0.25);
+}
+
+.text-glow-magenta {
+  color: var(--magenta);
+  text-shadow: 0 0 6px rgba(255, 46, 196, 0.65), 0 0 18px rgba(255, 46, 196, 0.25);
+}
+
+.text-glow-red {
+  color: var(--red-alert);
+  text-shadow: 0 0 6px rgba(255, 59, 59, 0.7), 0 0 18px rgba(255, 59, 59, 0.3);
+}
+
+.hud-panel {
+  position: relative;
+  background: linear-gradient(180deg, var(--bg-panel-raised), var(--bg-panel));
+  border: 1px solid var(--line);
+  clip-path: polygon(
+    0 8px,
+    8px 0,
+    100% 0,
+    100% calc(100% - 8px),
+    calc(100% - 8px) 100%,
+    0 100%
+  );
+}
+
+.hud-panel::before,
+.hud-panel::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-color: var(--cyan);
+  filter: drop-shadow(0 0 4px var(--cyan));
+}
+
+.hud-panel::before {
+  top: -2px;
+  left: -2px;
+  border-top: 3px solid;
+  border-left: 3px solid;
+}
+
+.hud-panel::after {
+  bottom: -2px;
+  right: -2px;
+  border-bottom: 3px solid;
+  border-right: 3px solid;
+}
+
+.hud-grid-bg {
+  background-image: linear-gradient(rgba(0, 255, 242, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 242, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
