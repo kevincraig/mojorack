@@ -1,35 +1,27 @@
 # Deploying to the Pi
 
 This walks through going from a blank SD card to a rack-mounted Pi4 running
-the full stack and driving the 7" screen in kiosk mode.
+the full stack and driving the 7" screen in kiosk mode. Verified against a
+real Pi4 running the current Raspberry Pi OS (Debian trixie-based, labwc
+desktop).
 
 ## 1. Pick an OS image
 
-**Recommendation: Raspberry Pi OS (64-bit, Bookworm), Desktop, with the
-windowing system set to X11 (not the Bookworm default of Wayland/labwc).**
-
-Why this over the alternatives:
+**Recommendation: Raspberry Pi OS (64-bit), Desktop.**
 
 - **Official image, best hardware support.** First-party apt repos, and the
   Raspberry Pi Foundation's own 7" touch display is guaranteed to work
-  out of the box — no third-party driver hunting.
+  out of the box.
 - **64-bit matters.** Next.js/Node and Docker both run meaningfully better
-  on 64-bit; the 32-bit image has no real upside here.
-- **Desktop, not Lite.** Kiosk mode needs a windowing session. Lite can be
-  made to work (`cage` + Wayland, or a hand-rolled `startx`), but it's more
-  moving parts for no real benefit on a Pi4 that has RAM to spare.
-- **X11, not Wayland.** Bookworm's default desktop is Wayland (labwc). It
-  works, but Chromium's kiosk flags, `DISPLAY`-based tooling (`xset`,
-  `unclutter`), and most kiosk tutorials online all assume X11. Switching
-  the windowing system back to X11 keeps everything in this repo
-  (`kiosk/kiosk.sh`, the systemd unit) working exactly as written, with one
-  fewer variable to debug. You lose nothing meaningful for a single
-  full-screen kiosk browser.
+  on 64-bit.
+- **Desktop, not Lite.** Kiosk mode needs a graphical session.
 
-If you'd rather not touch that setting, Wayland works too — Chromium runs
-fine under XWayland — but skip the `xset` screen-blanking commands (they're
-X11-only; see step 4 for the Wayland equivalent) and expect a bit more
-troubleshooting.
+The current Raspberry Pi OS Desktop image defaults to **labwc** (a Wayland
+compositor) rather than X11. Don't fight this — Chromium runs natively under
+Wayland with no extra flags needed, and everything in this repo
+(`kiosk/kiosk.sh`, `kiosk/labwc-autostart`) targets that setup directly. An
+earlier version of this guide recommended switching to X11; that turned out
+to be unnecessary complexity once actually deployed to hardware.
 
 ### Flash it
 
@@ -38,8 +30,11 @@ writing, click the gear icon (⚙️) / "Edit Settings" to configure headless:
 
 - Hostname (e.g. `mojorack`)
 - Enable SSH, set your key or a password
-- Set username/password (this guide assumes user `pi`)
+- Set username/password (this guide assumes user `kevin` — substitute yours
+  throughout)
 - Wi-Fi, if not wired
+- **Enable auto-login to desktop**, if the option is present in your version
+  of Imager — saves the `raspi-config` step below.
 
 ## 2. First boot: base setup
 
@@ -47,23 +42,32 @@ SSH in, then:
 
 ```sh
 sudo apt update && sudo apt full-upgrade -y
-sudo raspi-config
 ```
 
-In `raspi-config`:
+If you didn't set auto-login during imaging, enable it now:
 
-- **System Options → Boot / Auto Login → Desktop Autologin** — the Pi must
-  boot straight into a graphical session with no login prompt.
-- **Advanced Options → Wayland** → select **X11** (this is the setting from
-  step 1 — it's under "Advanced Options" on most Bookworm builds).
+```sh
+sudo raspi-config nonint do_boot_behaviour B4   # boot to desktop, autologin
+```
 
-Reboot after changing these (`sudo reboot`).
+(`B4` is "Desktop Autologin" in `raspi-config`'s System Options → Boot menu,
+for scripting it non-interactively. Reboot after.)
+
+Confirm it took effect — `loginctl list-sessions` after a reboot should show
+an active session for your user with `Type=wayland` even without ever
+logging in over SSH, and:
+
+```sh
+grep autologin /etc/lightdm/lightdm.conf
+```
+
+should show `autologin-user=<you>` and `autologin-session=rpd-labwc`.
 
 ### Install Docker
 
 ```sh
-curl -fsSL https://get.docker.com | sh
-sudo usermod -aG docker pi
+curl -fsSL https://get.docker.com | sudo sh
+sudo usermod -aG docker $USER
 ```
 
 Log out and back in (or reboot) for the group change to take effect. Verify:
@@ -81,13 +85,31 @@ no cross-compilation needed.
 ```sh
 git clone https://github.com/kevincraig/mojorack.git ~/mojorack
 cd ~/mojorack
+```
+
+For `.env`, don't retype your UniFi credentials over SSH by hand if you
+already have a working `.env` on another machine — copy it directly:
+
+```sh
+# from your other machine, not the Pi:
+scp .env <user>@<pi-ip>:~/mojorack/.env
+```
+
+Otherwise set it up fresh:
+
+```sh
 cp .env.example .env
 nano .env   # fill in UNIFI_CONTROLLER_URL, UNIFI_USER, UNIFI_PASS
+```
+
+Then bring the stack up:
+
+```sh
 docker compose up -d --build
 ```
 
-The first build takes a few minutes on a Pi4 (npm install + Next.js build).
-Verify it's healthy before moving on:
+The first build takes roughly a minute on a Pi4 (npm install + Next.js
+build). Verify it's healthy before moving on:
 
 ```sh
 docker compose ps                                  # unpoller should say "healthy"
@@ -100,8 +122,8 @@ curl -s http://localhost:3010/api/metrics | jq
 > then on the Pi swap the `dashboard` service's `build:` block for `image:
 > ghcr.io/<you>/mojorack-dashboard:latest` and use `docker compose pull &&
 > docker compose up -d` instead of rebuilding on-device. Not necessary to
-> start — the Pi builds itself fine — just faster once you're iterating
-> daily.
+> start — the Pi builds itself fine in about a minute — just faster once
+> you're iterating daily.
 
 ### Updating later
 
@@ -116,51 +138,53 @@ docker compose up -d --build
 Still on the Pi, with the stack already running from step 3:
 
 ```sh
-sudo apt install -y chromium-browser unclutter curl
+sudo apt install -y chromium curl
 ```
 
-(On some Bookworm builds the package is just `chromium` — the repo's
-`kiosk/kiosk.sh` checks for either name automatically.)
+(The package is `chromium` on current Raspberry Pi OS; older images used
+`chromium-browser`. `kiosk/kiosk.sh` checks for either name automatically.)
 
-Install the launch script and systemd unit (already in the repo you cloned):
+### Disable screen blanking
+
+Under labwc, blanking is opt-in (via a `swayidle` line in the autostart
+file) rather than on-by-default the way X11's DPMS traditionally was — so on
+a fresh image there's usually nothing to turn off. Confirm explicitly anyway
+so a future OS update can't silently change the default:
+
+```sh
+sudo raspi-config nonint do_blanking 1   # 1 = disable blanking
+```
+
+### Install the kiosk autostart
 
 ```sh
 chmod +x ~/mojorack/kiosk/kiosk.sh
-sudo cp ~/mojorack/kiosk/mojorack-kiosk.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable --now mojorack-kiosk
+mkdir -p ~/.config/labwc
+cp ~/mojorack/kiosk/labwc-autostart ~/.config/labwc/autostart
 ```
 
-The unit (`kiosk/mojorack-kiosk.service`) assumes:
+This replaces labwc's default autostart (which normally launches the
+desktop wallpaper and taskbar) with just the dashboard kiosk, so the screen
+boots straight into it with no desktop chrome. `kiosk/kiosk.sh` itself
+handles the two things that most commonly break a kiosk setup:
 
-- Username `pi` and repo cloned to `/home/pi/mojorack` — edit `User=` and
-  `ExecStart=` if either differs.
-- `DASHBOARD_URL=http://localhost:3010` — matches the port mapping in
-  `docker-compose.yml`; keep them in sync if you change one.
-
-`kiosk/kiosk.sh` itself handles the two things that most commonly break a
-kiosk setup:
-
-- **Screen blanking.** `xset s off`, `xset s noblank`, `xset -dpms` stop
-  X11's power management from putting the panel to sleep after ~10-20
-  minutes of no keyboard/mouse input (the dashboard updating on its own
-  doesn't count as "activity" to X11). **If you kept Wayland/labwc instead
-  of switching to X11**, the equivalent is disabling idle/screen-blanking in
-  `~/.config/labwc/rc.xml` (or via whatever idle daemon your image ships) —
-  the `xset` calls here are no-ops under pure Wayland.
 - **Crash-restore prompts.** A dedicated `--user-data-dir` plus
   `--disable-session-crashed-bubble --disable-restore-session-state` stop
   Chromium from showing "Restore pages?" after an unclean shutdown (e.g. a
   power cut, which is a realistic scenario for something sitting in a rack).
+- **Staying up.** Since this launches from labwc's autostart rather than a
+  systemd unit, there's no `Restart=on-failure` to fall back on — the script
+  wraps Chromium in its own retry loop instead.
 
 ### Verify
 
-Reboot the Pi (`sudo reboot`). It should come up straight into the dashboard,
-full-screen, no login prompt, no browser chrome. If it doesn't:
+Reboot the Pi (`sudo reboot`). It should come up straight into the
+dashboard, full-screen, no login prompt, no browser chrome. If it doesn't:
 
 ```sh
-systemctl status mojorack-kiosk
-journalctl -u mojorack-kiosk -f
+# on the Pi's own console, or check after SSH-ing back in:
+cat ~/.xsession-errors | tail -50
+docker compose logs dashboard
 ```
 
 The script waits for `http://localhost:3010` to respond before launching

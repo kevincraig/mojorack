@@ -1,0 +1,14 @@
+# Install to ~/.config/labwc/autostart on the Pi driving the 7" screen (the
+# file labwc runs at the start of the desktop session). This replaces the
+# default entries from /etc/xdg/labwc/autostart (wallpaper, taskbar) so the
+# screen is a pure kiosk with no desktop chrome.
+#
+#   mkdir -p ~/.config/labwc
+#   cp kiosk/labwc-autostart ~/.config/labwc/autostart
+#
+# Keeps kanshi (output/display config) since it's harmless and handles
+# reattaching the panel correctly on boot; drops pcmanfm-pi (wallpaper/desktop
+# icons) and wf-panel-pi (taskbar) intentionally.
+
+/usr/bin/kanshi &
+"$HOME/mojorack/kiosk/kiosk.sh" &
