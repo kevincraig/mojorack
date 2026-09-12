@@ -13,9 +13,9 @@ interface OverviewPageProps {
 
 export function OverviewPage({ site, wan, rxHistory, txHistory }: OverviewPageProps) {
   return (
-    <div className="h-full flex flex-col gap-2 px-1">
+    <div className="h-full flex flex-row gap-2 px-1">
       <HudPanel title="Site Overview" className="flex-1">
-        <div className="flex h-full items-center justify-between gap-2">
+        <div className="grid grid-cols-2 h-full content-center gap-x-4 gap-y-3">
           <StatTile label="Wired" value={String(site?.clientsWired ?? "--")} size="xl" />
           <StatTile label="Wireless" value={String(site?.clientsWireless ?? "--")} size="xl" accent="magenta" />
           <StatTile label="Guests" value={String(site?.guests ?? "--")} accent="magenta" size="lg" />
@@ -27,19 +27,28 @@ export function OverviewPage({ site, wan, rxHistory, txHistory }: OverviewPagePr
       </HudPanel>
 
       <HudPanel title="WAN Uplink" accent="magenta" className="flex-1">
-        <div className="flex h-full items-center gap-4">
-          <StatTile label="Download" value={formatBitsPerSecond(wan?.rxRateBytes ?? null)} size="xl" />
-          <StatTile label="Upload" value={formatBitsPerSecond(wan?.txRateBytes ?? null)} size="xl" accent="magenta" />
-          <div className="relative flex-1 h-10 min-w-0">
+        <div className="h-full flex flex-col justify-between">
+          <div className="flex items-baseline gap-6">
+            <StatTile label="Download" value={formatBitsPerSecond(wan?.rxRateBytes ?? null)} size="xl" />
+            <StatTile
+              label="Upload"
+              value={formatBitsPerSecond(wan?.txRateBytes ?? null)}
+              size="xl"
+              accent="magenta"
+            />
+          </div>
+          <div className="relative h-10 w-full">
             <Sparkline values={rxHistory} color="var(--cyan)" height={40} fill className="absolute inset-0" />
             <Sparkline values={txHistory} color="var(--magenta)" height={40} fill className="absolute inset-0" />
           </div>
-          <StatTile
-            label="Latency"
-            value={wan?.latencySeconds != null ? `${Math.round(wan.latencySeconds * 1000)}ms` : "--"}
-            size="lg"
-          />
-          <StatTile label="Uptime" value={formatUptime(wan?.uptimeSeconds ?? null)} accent="yellow" size="lg" />
+          <div className="flex items-baseline gap-6">
+            <StatTile
+              label="Latency"
+              value={wan?.latencySeconds != null ? `${Math.round(wan.latencySeconds * 1000)}ms` : "--"}
+              size="lg"
+            />
+            <StatTile label="Uptime" value={formatUptime(wan?.uptimeSeconds ?? null)} accent="yellow" size="lg" />
+          </div>
         </div>
       </HudPanel>
     </div>
