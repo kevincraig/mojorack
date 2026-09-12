@@ -15,7 +15,7 @@ export function OverviewPage({ site, wan, rxHistory, txHistory }: OverviewPagePr
   return (
     <div className="h-full flex flex-row gap-2 px-1">
       <HudPanel title="Site Overview" className="flex-1">
-        <div className="grid grid-cols-2 h-full content-center gap-x-4 gap-y-3">
+        <div className="grid grid-cols-2 grid-rows-4 h-full items-center gap-x-4">
           <StatTile label="Wired" value={String(site?.clientsWired ?? "--")} size="xl" />
           <StatTile label="Wireless" value={String(site?.clientsWireless ?? "--")} size="xl" accent="magenta" />
           <StatTile label="Guests" value={String(site?.guests ?? "--")} accent="magenta" size="lg" />
@@ -27,8 +27,8 @@ export function OverviewPage({ site, wan, rxHistory, txHistory }: OverviewPagePr
       </HudPanel>
 
       <HudPanel title="WAN Uplink" accent="magenta" className="flex-1">
-        <div className="h-full flex flex-col justify-between">
-          <div className="flex items-baseline gap-6">
+        <div className="h-full flex flex-col gap-2">
+          <div className="flex items-baseline gap-6 shrink-0">
             <StatTile label="Download" value={formatBitsPerSecond(wan?.rxRateBytes ?? null)} size="xl" />
             <StatTile
               label="Upload"
@@ -37,11 +37,11 @@ export function OverviewPage({ site, wan, rxHistory, txHistory }: OverviewPagePr
               accent="magenta"
             />
           </div>
-          <div className="relative h-10 w-full">
-            <Sparkline values={rxHistory} color="var(--cyan)" height={40} fill className="absolute inset-0" />
-            <Sparkline values={txHistory} color="var(--magenta)" height={40} fill className="absolute inset-0" />
+          <div className="relative flex-1 min-h-0 w-full border-y border-[var(--line)]">
+            <Sparkline values={rxHistory} color="var(--cyan)" fill className="absolute inset-0" />
+            <Sparkline values={txHistory} color="var(--magenta)" fill className="absolute inset-0" />
           </div>
-          <div className="flex items-baseline gap-6">
+          <div className="flex items-baseline gap-6 shrink-0">
             <StatTile
               label="Latency"
               value={wan?.latencySeconds != null ? `${Math.round(wan.latencySeconds * 1000)}ms` : "--"}
