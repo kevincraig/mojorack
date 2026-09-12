@@ -106,13 +106,10 @@ password).
 
 ### 5. Kiosk mode on the 7" screen
 
-On the Pi that drives the screen (can be the same Pi4 or a second one):
-
-1. Copy `kiosk/kiosk.sh` to the Pi and adjust `DASHBOARD_URL` if the
-   dashboard runs on a different host.
-2. Install `kiosk/mojorack-kiosk.service` to `/etc/systemd/system/`, fixing
-   the `User=` and `ExecStart=` path for your setup.
-3. `sudo systemctl enable --now mojorack-kiosk`
+See **[docs/pi-deployment.md](docs/pi-deployment.md)** for the full walkthrough
+— recommended OS image, moving the stack onto the Pi, and setting up
+`kiosk/kiosk.sh` + `kiosk/mojorack-kiosk.service` so it boots straight into
+the dashboard full-screen.
 
 ## Project layout
 
@@ -125,6 +122,7 @@ dashboard/                 # Next.js app (App Router, TypeScript)
   components/                 # HUD panels, stat tiles, sparklines, device grid
   Dockerfile                  # multi-stage build -> standalone Next.js output
 kiosk/                      # Chromium kiosk launch script + systemd unit
+docs/pi-deployment.md      # OS image choice, moving the app to the Pi, kiosk setup
 ```
 
 ## Troubleshooting

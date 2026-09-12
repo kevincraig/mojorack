@@ -9,7 +9,7 @@ Wants=network-online.target
 Type=simple
 User=pi
 Environment=DISPLAY=:0
-Environment=DASHBOARD_URL=http://localhost:3000
+Environment=DASHBOARD_URL=http://localhost:3010
 ExecStart=/home/pi/mojorack/kiosk/kiosk.sh
 Restart=on-failure
 RestartSec=5
