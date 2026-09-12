@@ -18,21 +18,21 @@ export function DeviceGrid({ devices }: DeviceGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-3 gap-2 overflow-y-auto max-h-full content-start">
+    <div className="grid grid-cols-3 gap-3 overflow-y-auto max-h-full content-start">
       {devices.map((device) => (
         <div
           key={device.key}
-          className="border border-[var(--line)] bg-black/30 px-2 py-1.5 flex flex-col gap-1 min-w-0"
+          className="border border-[var(--line)] bg-black/30 px-3 py-2.5 flex flex-col gap-1.5 min-w-0"
         >
           <div className="flex items-baseline justify-between gap-1">
-            <span className="text-xs font-bold uppercase truncate">{device.name}</span>
-            <span className="text-[9px] text-[var(--text-dim)] uppercase shrink-0">{device.type}</span>
+            <span className="text-sm font-bold uppercase truncate">{device.name}</span>
+            <span className="text-[10px] text-[var(--text-dim)] uppercase shrink-0">{device.type}</span>
           </div>
-          <div className="flex items-baseline justify-between text-[10px] gap-1">
+          <div className="flex items-baseline justify-between text-xs gap-1">
             <span className={healthAccent(device.cpuRatio)}>CPU {formatPercent(device.cpuRatio)}</span>
             <span className="text-[var(--text-dim)]">MEM {formatPercent(device.memRatio)}</span>
           </div>
-          <div className="flex items-baseline justify-between text-[10px] text-[var(--text-dim)] gap-1">
+          <div className="flex items-baseline justify-between text-xs text-[var(--text-dim)] gap-1">
             <span>{formatTemperature(device.temperatureCelsius)}</span>
             <span>UP {formatUptime(device.uptimeSeconds)}</span>
             {device.stationCount !== null && <span>{device.stationCount} sta</span>}

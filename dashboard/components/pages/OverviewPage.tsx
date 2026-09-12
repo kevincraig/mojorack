@@ -15,7 +15,7 @@ export function OverviewPage({ site, wan, rxHistory, txHistory }: OverviewPagePr
   return (
     <div className="h-full flex flex-col gap-2 px-1">
       <HudPanel title="Site Overview" className="flex-1">
-        <div className="grid grid-cols-4 h-full content-center gap-x-3 gap-y-2">
+        <div className="flex h-full items-center justify-between gap-2">
           <StatTile label="Wired" value={String(site?.clientsWired ?? "--")} size="xl" />
           <StatTile label="Wireless" value={String(site?.clientsWireless ?? "--")} size="xl" accent="magenta" />
           <StatTile label="Guests" value={String(site?.guests ?? "--")} accent="magenta" size="lg" />
