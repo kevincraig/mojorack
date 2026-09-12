@@ -2,7 +2,7 @@ interface StatTileProps {
   label: string;
   value: string;
   accent?: "cyan" | "magenta" | "yellow";
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
 }
 
 const ACCENT_CLASS: Record<NonNullable<StatTileProps["accent"]>, string> = {
@@ -15,6 +15,7 @@ const SIZE_CLASS: Record<NonNullable<StatTileProps["size"]>, string> = {
   sm: "text-base",
   md: "text-xl",
   lg: "text-2xl",
+  xl: "text-4xl",
 };
 
 export function StatTile({ label, value, accent = "cyan", size = "sm" }: StatTileProps) {
