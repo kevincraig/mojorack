@@ -33,6 +33,10 @@ CHROMIUM_BIN="$(command -v chromium-browser || command -v chromium)"
 # Relaunch on crash/update. This script is started once from autostart (no
 # systemd Restart= to fall back on), so the retry loop lives here instead.
 while true; do
+  # --password-store=basic: without this, Chromium tries to unlock/create a
+  # system keyring via libsecret. Autologin means no password was ever typed
+  # to unlock one, so it blocks the whole session behind a "Choose Password
+  # for new keyring" modal instead of showing the dashboard.
   "$CHROMIUM_BIN" \
     --kiosk \
     --noerrdialogs \
@@ -43,6 +47,7 @@ while true; do
     --overscroll-history-navigation=0 \
     --check-for-update-interval=31536000 \
     --ozone-platform-hint=auto \
+    --password-store=basic \
     --user-data-dir="${HOME}/.config/mojorack-chromium" \
     "$DASHBOARD_URL"
   sleep 2
