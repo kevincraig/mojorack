@@ -2,7 +2,7 @@ interface StatTileProps {
   label: string;
   value: string;
   accent?: "cyan" | "magenta" | "yellow";
-  size?: "md" | "lg" | "hero";
+  size?: "sm" | "md" | "lg";
 }
 
 const ACCENT_CLASS: Record<NonNullable<StatTileProps["accent"]>, string> = {
@@ -12,15 +12,17 @@ const ACCENT_CLASS: Record<NonNullable<StatTileProps["accent"]>, string> = {
 };
 
 const SIZE_CLASS: Record<NonNullable<StatTileProps["size"]>, string> = {
-  md: "text-2xl",
-  lg: "text-4xl",
-  hero: "text-6xl",
+  sm: "text-base",
+  md: "text-xl",
+  lg: "text-2xl",
 };
 
-export function StatTile({ label, value, accent = "cyan", size = "md" }: StatTileProps) {
+export function StatTile({ label, value, accent = "cyan", size = "sm" }: StatTileProps) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <span className="text-xs tracking-[0.2em] uppercase text-[var(--text-dim)]">{label}</span>
+    <div className="flex flex-col gap-0.5 min-w-0">
+      <span className="text-[9px] leading-none tracking-[0.15em] uppercase text-[var(--text-dim)] truncate">
+        {label}
+      </span>
       <span className={`font-display font-bold leading-none ${SIZE_CLASS[size]} ${ACCENT_CLASS[accent]}`}>
         {value}
       </span>
