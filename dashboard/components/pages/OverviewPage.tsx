@@ -15,14 +15,18 @@ export function OverviewPage({ site, wan, rxHistory, txHistory }: OverviewPagePr
   return (
     <div className="h-full flex flex-row gap-2 px-1">
       <HudPanel title="Site Overview" className="flex-1">
-        <div className="grid grid-cols-2 grid-rows-4 h-full items-center gap-x-4">
-          <StatTile label="Wired" value={String(site?.clientsWired ?? "--")} size="xl" />
-          <StatTile label="Wireless" value={String(site?.clientsWireless ?? "--")} size="xl" accent="magenta" />
-          <StatTile label="Guests" value={String(site?.guests ?? "--")} accent="magenta" size="lg" />
-          <StatTile label="Disconnected" value={String(site?.disconnected ?? "--")} accent="yellow" size="lg" />
-          <StatTile label="Access Points" value={String(site?.accessPoints ?? "--")} size="lg" />
-          <StatTile label="Gateways" value={String(site?.gateways ?? "--")} size="lg" />
-          <StatTile label="Switches" value={String(site?.switches ?? "--")} size="lg" />
+        <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-2 gap-x-4">
+            <StatTile label="Wired" value={String(site?.clientsWired ?? "--")} size="xl" />
+            <StatTile label="Wireless" value={String(site?.clientsWireless ?? "--")} size="xl" accent="magenta" />
+          </div>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
+            <StatTile label="Guests" value={String(site?.guests ?? "--")} accent="magenta" size="lg" />
+            <StatTile label="Disconnected" value={String(site?.disconnected ?? "--")} accent="yellow" size="lg" />
+            <StatTile label="Access Points" value={String(site?.accessPoints ?? "--")} size="lg" />
+            <StatTile label="Gateways" value={String(site?.gateways ?? "--")} size="lg" />
+            <StatTile label="Switches" value={String(site?.switches ?? "--")} size="lg" />
+          </div>
         </div>
       </HudPanel>
 

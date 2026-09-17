@@ -18,7 +18,7 @@ export function DeviceGrid({ devices }: DeviceGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-3 gap-3 overflow-y-auto max-h-full content-start">
+    <div className="grid grid-cols-2 gap-3 overflow-y-auto max-h-full content-start">
       {devices.map((device) => (
         <div
           key={device.key}
