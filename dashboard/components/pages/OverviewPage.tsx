@@ -21,6 +21,14 @@ export function OverviewPage({ site, wan, rxHistory, txHistory, now }: OverviewP
       <div className="flex flex-row gap-3 flex-[4] min-h-0">
         <HudPanel title="Site Overview" className="flex-1">
           <div className="h-full flex flex-col gap-4">
+            <div className="flex items-center gap-2 font-display font-bold text-4xl leading-none">
+              <span className="text-glow-cyan">{hours}</span>
+              <span className="flex flex-col items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                <span className="h-1.5 w-1.5 rounded-full bg-white" />
+              </span>
+              <span className="text-glow-magenta">{minutes}</span>
+            </div>
             <div className="grid grid-cols-2 gap-x-6">
               <StatTile label="Wired" value={String(site?.clientsWired ?? "--")} size="xl" />
               <StatTile label="Wireless" value={String(site?.clientsWireless ?? "--")} size="xl" accent="magenta" />
@@ -31,11 +39,6 @@ export function OverviewPage({ site, wan, rxHistory, txHistory, now }: OverviewP
               <StatTile label="Access Points" value={String(site?.accessPoints ?? "--")} size="lg" />
               <StatTile label="Gateways" value={String(site?.gateways ?? "--")} size="lg" />
               <StatTile label="Switches" value={String(site?.switches ?? "--")} size="lg" />
-            </div>
-            <div className="mt-auto flex items-baseline gap-2 font-display font-bold text-4xl leading-none">
-              <span className="text-glow-cyan">{hours}</span>
-              <span className="text-white">•</span>
-              <span className="text-glow-magenta">{minutes}</span>
             </div>
           </div>
         </HudPanel>
