@@ -18,11 +18,11 @@ export function DeviceGrid({ devices }: DeviceGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-4 overflow-y-auto max-h-full content-start">
+    <div className="grid grid-cols-2 gap-3 overflow-y-auto max-h-full content-start">
       {devices.map((device) => (
         <div
           key={device.key}
-          className="border border-[var(--line)] bg-black/30 px-4 py-3 flex flex-col gap-2 min-w-0"
+          className="border border-[var(--line)] bg-black/30 px-4 py-2 flex flex-col gap-1.5 min-w-0"
         >
           <div className="flex items-baseline justify-between gap-1">
             <span className="text-sm font-bold uppercase truncate">{device.name}</span>
