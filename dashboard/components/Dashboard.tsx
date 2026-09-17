@@ -13,6 +13,7 @@ const HISTORY_LENGTH = 40;
 const ROTATE_INTERVAL_MS = 25_000;
 const SWIPE_THRESHOLD_PX = 40;
 const PAGE_COUNT = 3;
+const AUTO_ROTATE_STORAGE_KEY = "mojorack:autoRotate";
 
 export function Dashboard() {
   const [snapshot, setSnapshot] = useState<MetricsSnapshot | null>(null);
@@ -20,7 +21,28 @@ export function Dashboard() {
   const [rxHistory, setRxHistory] = useState<number[]>([]);
   const [txHistory, setTxHistory] = useState<number[]>([]);
   const [pageIndex, setPageIndex] = useState(0);
+  const [autoRotate, setAutoRotate] = useState(true);
   const touchStartX = useRef<number | null>(null);
+  const hydratedAutoRotate = useRef(false);
+
+  // Deferred (not read synchronously during the initial effect) so the
+  // client's first paint matches the server-rendered default and hydration
+  // doesn't mismatch before the stored preference is applied. The persist
+  // effect below is gated on hydratedAutoRotate so it can't write the
+  // default back over a stored preference before this read completes.
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const stored = window.localStorage.getItem(AUTO_ROTATE_STORAGE_KEY);
+      if (stored !== null) setAutoRotate(stored === "true");
+      hydratedAutoRotate.current = true;
+    }, 0);
+    return () => clearTimeout(timeout);
+  }, []);
+
+  useEffect(() => {
+    if (!hydratedAutoRotate.current) return;
+    window.localStorage.setItem(AUTO_ROTATE_STORAGE_KEY, String(autoRotate));
+  }, [autoRotate]);
 
   useEffect(() => {
     let cancelled = false;
@@ -62,11 +84,12 @@ export function Dashboard() {
   // Restarts on every page change (auto or manual) so a swipe always buys a
   // full interval before the next auto-advance, instead of being cut short.
   useEffect(() => {
+    if (!autoRotate) return;
     const timer = setInterval(() => {
       setPageIndex((i) => (i + 1) % PAGE_COUNT);
     }, ROTATE_INTERVAL_MS);
     return () => clearInterval(timer);
-  }, [pageIndex]);
+  }, [pageIndex, autoRotate]);
 
   function handleTouchStart(event: TouchEvent<HTMLDivElement>) {
     touchStartX.current = event.touches[0].clientX;
@@ -101,6 +124,20 @@ export function Dashboard() {
           <span className="font-hud text-[var(--text-dim)]">
             {now ? now.toLocaleTimeString([], { hour12: false }) : "--:--:--"}
           </span>
+          <button
+            type="button"
+            aria-pressed={autoRotate}
+            aria-label={`Auto-cycle ${autoRotate ? "on" : "off"}`}
+            onClick={() => {
+              setAutoRotate((v) => !v);
+              if (autoRotate) setPageIndex(0);
+            }}
+            className={`font-hud tracking-[0.15em] ${
+              autoRotate ? "text-glow-cyan" : "text-[var(--text-dim)]"
+            }`}
+          >
+            AUTO {autoRotate ? "ON" : "OFF"}
+          </button>
         </div>
       </header>
 
