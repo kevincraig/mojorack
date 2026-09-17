@@ -9,31 +9,40 @@ interface OverviewPageProps {
   wan: WanStatus | null;
   rxHistory: number[];
   txHistory: number[];
+  now: Date | null;
 }
 
-export function OverviewPage({ site, wan, rxHistory, txHistory }: OverviewPageProps) {
+export function OverviewPage({ site, wan, rxHistory, txHistory, now }: OverviewPageProps) {
+  const hours = now ? String(now.getHours()).padStart(2, "0") : "--";
+  const minutes = now ? String(now.getMinutes()).padStart(2, "0") : "--";
+
   return (
     <div className="h-full flex flex-col gap-2 px-1">
-      <div className="flex flex-row gap-2 flex-[3] min-h-0">
+      <div className="flex flex-row gap-3 flex-[4] min-h-0">
         <HudPanel title="Site Overview" className="flex-1">
-          <div className="flex flex-col gap-3">
-            <div className="grid grid-cols-2 gap-x-4">
+          <div className="h-full flex flex-col gap-4">
+            <div className="grid grid-cols-2 gap-x-6">
               <StatTile label="Wired" value={String(site?.clientsWired ?? "--")} size="xl" />
               <StatTile label="Wireless" value={String(site?.clientsWireless ?? "--")} size="xl" accent="magenta" />
             </div>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3">
               <StatTile label="Guests" value={String(site?.guests ?? "--")} accent="magenta" size="lg" />
               <StatTile label="Disconnected" value={String(site?.disconnected ?? "--")} accent="yellow" size="lg" />
               <StatTile label="Access Points" value={String(site?.accessPoints ?? "--")} size="lg" />
               <StatTile label="Gateways" value={String(site?.gateways ?? "--")} size="lg" />
               <StatTile label="Switches" value={String(site?.switches ?? "--")} size="lg" />
             </div>
+            <div className="mt-auto flex items-baseline gap-2 font-display font-bold text-4xl leading-none">
+              <span className="text-glow-cyan">{hours}</span>
+              <span className="text-white">•</span>
+              <span className="text-glow-magenta">{minutes}</span>
+            </div>
           </div>
         </HudPanel>
 
         <HudPanel title="WAN Uplink" accent="magenta" className="flex-1">
-          <div className="flex flex-col gap-3">
-            <div className="grid grid-cols-2 gap-x-4">
+          <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-2 gap-x-6">
               <StatTile label="Download" value={formatBitsPerSecond(wan?.rxRateBytes ?? null)} size="xl" />
               <StatTile
                 label="Upload"
@@ -42,7 +51,7 @@ export function OverviewPage({ site, wan, rxHistory, txHistory }: OverviewPagePr
                 accent="magenta"
               />
             </div>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3">
               <StatTile
                 label="Internet Uptime"
                 value={formatUptime(wan?.uptimeSeconds ?? null)}
@@ -66,7 +75,7 @@ export function OverviewPage({ site, wan, rxHistory, txHistory }: OverviewPagePr
         </HudPanel>
       </div>
 
-      <HudPanel title="WAN Throughput History" className="flex-[2] min-h-0">
+      <HudPanel title="WAN Throughput History" className="flex-1 min-h-0">
         <div className="h-full flex flex-col gap-1.5">
           <div className="relative flex-1 min-h-0 w-full">
             <Sparkline values={rxHistory} color="var(--cyan)" fill className="absolute inset-0" />

@@ -147,7 +147,7 @@ export function Dashboard() {
         onTouchEnd={handleTouchEnd}
       >
         {[
-          <OverviewPage key="overview" site={site} wan={wan} rxHistory={rxHistory} txHistory={txHistory} />,
+          <OverviewPage key="overview" site={site} wan={wan} rxHistory={rxHistory} txHistory={txHistory} now={now} />,
           <DevicesPage key="devices" devices={snapshot?.devices ?? []} />,
           <ComingSoonPage key="more" />,
         ].map((page, i) => (
