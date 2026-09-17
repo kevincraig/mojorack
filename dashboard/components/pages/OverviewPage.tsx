@@ -1,5 +1,5 @@
 import type { SiteOverview, WanStatus } from "@/lib/types";
-import { formatBitsPerSecond, formatUptime } from "@/lib/format";
+import { formatBitsPerSecond, formatMbps, formatUptime } from "@/lib/format";
 import { HudPanel } from "@/components/HudPanel";
 import { StatTile } from "@/components/StatTile";
 import { Sparkline } from "@/components/Sparkline";
@@ -13,45 +13,74 @@ interface OverviewPageProps {
 
 export function OverviewPage({ site, wan, rxHistory, txHistory }: OverviewPageProps) {
   return (
-    <div className="h-full flex flex-row gap-2 px-1">
-      <HudPanel title="Site Overview" className="flex-1">
-        <div className="flex flex-col gap-3">
-          <div className="grid grid-cols-2 gap-x-4">
-            <StatTile label="Wired" value={String(site?.clientsWired ?? "--")} size="xl" />
-            <StatTile label="Wireless" value={String(site?.clientsWireless ?? "--")} size="xl" accent="magenta" />
+    <div className="h-full flex flex-col gap-2 px-1">
+      <div className="flex flex-row gap-2 flex-[3] min-h-0">
+        <HudPanel title="Site Overview" className="flex-1">
+          <div className="flex flex-col gap-3">
+            <div className="grid grid-cols-2 gap-x-4">
+              <StatTile label="Wired" value={String(site?.clientsWired ?? "--")} size="xl" />
+              <StatTile label="Wireless" value={String(site?.clientsWireless ?? "--")} size="xl" accent="magenta" />
+            </div>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
+              <StatTile label="Guests" value={String(site?.guests ?? "--")} accent="magenta" size="lg" />
+              <StatTile label="Disconnected" value={String(site?.disconnected ?? "--")} accent="yellow" size="lg" />
+              <StatTile label="Access Points" value={String(site?.accessPoints ?? "--")} size="lg" />
+              <StatTile label="Gateways" value={String(site?.gateways ?? "--")} size="lg" />
+              <StatTile label="Switches" value={String(site?.switches ?? "--")} size="lg" />
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
-            <StatTile label="Guests" value={String(site?.guests ?? "--")} accent="magenta" size="lg" />
-            <StatTile label="Disconnected" value={String(site?.disconnected ?? "--")} accent="yellow" size="lg" />
-            <StatTile label="Access Points" value={String(site?.accessPoints ?? "--")} size="lg" />
-            <StatTile label="Gateways" value={String(site?.gateways ?? "--")} size="lg" />
-            <StatTile label="Switches" value={String(site?.switches ?? "--")} size="lg" />
-          </div>
-        </div>
-      </HudPanel>
+        </HudPanel>
 
-      <HudPanel title="WAN Uplink" accent="magenta" className="flex-1">
-        <div className="h-full flex flex-col gap-2">
-          <div className="flex items-baseline gap-6 shrink-0">
-            <StatTile label="Download" value={formatBitsPerSecond(wan?.rxRateBytes ?? null)} size="xl" />
-            <StatTile
-              label="Upload"
-              value={formatBitsPerSecond(wan?.txRateBytes ?? null)}
-              size="xl"
-              accent="magenta"
-            />
+        <HudPanel title="WAN Uplink" accent="magenta" className="flex-1">
+          <div className="flex flex-col gap-3">
+            <div className="grid grid-cols-2 gap-x-4">
+              <StatTile label="Download" value={formatBitsPerSecond(wan?.rxRateBytes ?? null)} size="xl" />
+              <StatTile
+                label="Upload"
+                value={formatBitsPerSecond(wan?.txRateBytes ?? null)}
+                size="xl"
+                accent="magenta"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
+              <StatTile
+                label="Internet Uptime"
+                value={formatUptime(wan?.uptimeSeconds ?? null)}
+                accent="yellow"
+                size="lg"
+              />
+              <StatTile
+                label="Latency"
+                value={wan?.latencySeconds != null ? `${Math.round(wan.latencySeconds * 1000)}ms` : "--"}
+                size="lg"
+              />
+              <StatTile label="Last Speedtest ↓" value={formatMbps(wan?.speedtestDownMbps ?? null)} size="lg" />
+              <StatTile
+                label="Last Speedtest ↑"
+                value={formatMbps(wan?.speedtestUpMbps ?? null)}
+                size="lg"
+                accent="magenta"
+              />
+            </div>
           </div>
-          <div className="relative flex-1 min-h-0 w-full border-y border-[var(--line)]">
+        </HudPanel>
+      </div>
+
+      <HudPanel title="WAN Throughput History" className="flex-[2] min-h-0">
+        <div className="h-full flex flex-col gap-1.5">
+          <div className="relative flex-1 min-h-0 w-full">
             <Sparkline values={rxHistory} color="var(--cyan)" fill className="absolute inset-0" />
             <Sparkline values={txHistory} color="var(--magenta)" fill className="absolute inset-0" />
           </div>
-          <div className="flex items-baseline gap-6 shrink-0">
-            <StatTile
-              label="Latency"
-              value={wan?.latencySeconds != null ? `${Math.round(wan.latencySeconds * 1000)}ms` : "--"}
-              size="lg"
-            />
-            <StatTile label="Uptime" value={formatUptime(wan?.uptimeSeconds ?? null)} accent="yellow" size="lg" />
+          <div className="flex items-center gap-4 shrink-0 text-[10px] uppercase tracking-[0.1em]">
+            <span className="flex items-center gap-1.5 text-glow-cyan">
+              <span className="h-1.5 w-1.5 rounded-full bg-[var(--cyan)]" />
+              Down {formatBitsPerSecond(wan?.rxRateBytes ?? null)}
+            </span>
+            <span className="flex items-center gap-1.5 text-glow-magenta">
+              <span className="h-1.5 w-1.5 rounded-full bg-[var(--magenta)]" />
+              Up {formatBitsPerSecond(wan?.txRateBytes ?? null)}
+            </span>
           </div>
         </div>
       </HudPanel>
